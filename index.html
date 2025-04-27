@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buat Nita</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-color: #fff0f5;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+    header {
+      background-color: #ff69b4;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 36px;
+    }
+    .content, .next-content, .final-content {
+      text-align: center;
+      padding: 50px 20px;
+      font-size: 26px;
+      color: white;
+      text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      min-height: 300px;
+    }
+    .next-content, .final-content {
+      display: none;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 15px 30px;
+      font-size: 20px;
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .btn:hover {
+      background-color: #ff1493;
+    }
+    footer {
+      background-color: #ff69b4;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+      font-size: 18px;
+    }
+    .gif {
+      width: 200px;
+      height: auto;
+      margin-top: 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: scale(0.8); /* Mulai dengan skala lebih kecil */
+      animation: zoomFadeIn 2s forwards;
+      animation-delay: 1s; /* Muncul setelah 1 detik */
+    }
+
+    @keyframes zoomFadeIn {
+      to {
+        opacity: 1;
+        transform: scale(1); /* Skala normal */
+      }
+    }
+
+    /* Canvas untuk balon jatuh */
+    #balloonCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    🎉 Buat Nita 🎉
+  </header>
+
+  <div id="page1" class="content">
+    <span id="text1"></span>
+    <br><br>
+    <img src="yo.gif" class="gif" alt="Gif Lucu 1">
+    <br><br>
+    <button id="btn1" class="btn" style="display:none;" onclick="goToPage2()">Lanjut ➡️</button>
+  </div>
+
+  <div id="page2" class="next-content">
+    <span id="text2"></span>
+    <br><br>
+    <img src="yoo.gif" class="gif" alt="Gif Lucu 2">
+    <br><br>
+    <button id="btn2" class="btn" style="display:none;" onclick="goToPage3()">Lanjut Lagi ➡️</button>
+  </div>
+
+  <div id="page3" class="final-content">
+    <span id="text3"></span>
+    <br><br>
+    <img src="yooo.gif" class="gif" alt="Gif Lucu 3">
+    <br><br>
+    <p style="font-size:20px; color:#ffffff;" id="text4"></p>
+  </div>
+
+  <footer>
+    Tetap Happy dan GG ya Nita! ✨
+  </footer>
+
+  <!-- Musik Latar -->
+  <audio id="bgm" loop>
+    <source src="music.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Tombol Play Musik -->
+  <button id="playButton" class="btn" onclick="toggleMusic()">Play Musik</button>
+
+  <!-- Script Confetti dan Ngetik -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <!-- Script Balon Jatuh -->
+  <script>
+    // Canvas untuk balon jatuh
+    const balloonCanvas = document.createElement('canvas');
+    balloonCanvas.id = 'balloonCanvas';
+    document.body.appendChild(balloonCanvas);
+    const ctx = balloonCanvas.getContext('2d');
+    balloonCanvas.width = window.innerWidth;
+    balloonCanvas.height = window.innerHeight;
+
+    let balloons = [];
+    const numBalloons = 100;
+
+    const balloonColors = ['#FF6347', '#FFD700', '#32CD32', '#1E90FF', '#FF1493']; // Warna balon
+
+    for (let i = 0; i < numBalloons; i++) {
+      balloons.push({
+        x: Math.random() * window.innerWidth,
+        y: window.innerHeight + Math.random() * 500, // Mulai di bawah layar
+        radius: Math.random() * 20 + 20, // Ukuran balon acak
+        speed: Math.random() * 2 + 1, // Kecepatan balon naik
+        color: balloonColors[Math.floor(Math.random() * balloonColors.length)], // Warna balon acak
+        angle: Math.random() * 0.1 - 0.05 // Gerakan acak kiri/kanan
+      });
+    }
+
+    function drawBalloons() {
+      ctx.clearRect(0, 0, balloonCanvas.width, balloonCanvas.height);
+      for (let balloon of balloons) {
+        ctx.beginPath();
+        ctx.arc(balloon.x, balloon.y, balloon.radius, 0, Math.PI * 2);
+        ctx.fillStyle = balloon.color;
+        ctx.fill();
+        balloon.y -= balloon.speed; // Balon naik
+        balloon.x += balloon.angle; // Gerakan acak kiri/kanan
+        if (balloon.y < -balloon.radius) { // Balon keluar dari layar, reset posisi
+          balloon.y = window.innerHeight + balloon.radius;
+        }
+      }
+      requestAnimationFrame(drawBalloons);
+    }
+    drawBalloons();
+
+    // Confetti
+    function shootConfetti() {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
+    window.onload = () => {
+      shootConfetti();
+      setTimeout(shootConfetti, 1000);
+      setTimeout(shootConfetti, 2000);
+      startTyping('text1', "Walaupun kamu main ML beban dan digendong terus, kamu harus tetap semangat terus ya 😂😂😂😂😂", 50, () => {
+        document.getElementById('btn1').style.display = 'inline-block';
+      });
+    };
+
+    function goToPage2() {
+      document.getElementById('page1').style.display = 'none';
+      document.getElementById('page2').style.display = 'block';
+      shootConfetti();
+      startTyping('text2', "Kamu tuh kayak bintang yang selalu bersinar, walaupun kadang-kadang kena gendong 😂💪! Tapi tetap keren!", 50, () => {
+        document.getElementById('btn2').style.display = 'inline-block';
+      });
+    }
+
+    function goToPage3() {
+      document.getElementById('page2').style.display = 'none';
+      document.getElementById('page3').style.display = 'block';
+      shootConfetti();
+      startTyping('text3', "🌟 Tetaplah bersinar, Nitaaa!! Kamu itu luar biasa! 🌟✨", 50, () => {
+        setTimeout(() => {
+          startTyping('text4', "Sekian Dan Terima Kasih! 🎀", 50);
+        }, 500);
+      });
+    }
+
+    function startTyping(id, text, speed, callback) {
+      let i = 0;
+      const target = document.getElementById(id);
+      target.innerHTML = "";
+      function type() {
+        if (i < text.length) {
+          target.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else {
+          if (callback) callback();
+        }
+      }
+      type();
+    }
+
+    function toggleMusic() {
+      let music = document.getElementById('bgm');
+      let playButton = document.getElementById('playButton');
+      if (music.paused) {
+        music.play();
+        playButton.textContent = 'Pause Musik';
+      } else {
+        music.pause();
+        playButton.textContent = 'Play Musik';
+      }
+    }
+  </script>
+
+</body>
+</html>
